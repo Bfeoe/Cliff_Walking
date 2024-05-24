@@ -14,9 +14,7 @@ color_dir = {
 
 # 使用pygame实现可视化
 class Game_Visual(object):
-    def __init__(self, config: Maze_config, mode: str) -> None:
-        self.mode = mode
-
+    def __init__(self, config: Maze_config) -> None:
         # 设置可视化视窗大小
         SCREEN_SIZE = [800, 800]
         self.BLOCK_SIZE = SCREEN_SIZE[0] // config.NUM_COLS
@@ -66,7 +64,7 @@ class Game_Visual(object):
         self.screen.blit(text, (210, 0))
 
         # 显示mode
-        text = self.font.render(f"Mode: {self.mode}", True, (0, 0, 0))
+        text = self.font.render(f"Mode: {config.mode}", True, (0, 0, 0))
         self.screen.blit(text, (410, 0))
 
         pygame.display.update()

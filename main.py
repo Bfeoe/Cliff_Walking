@@ -1,33 +1,38 @@
 import argparse
 import pygame
+from dqn import DQNAgent
 from game import Game_Visual
 from maze import Maze_config
 from q_learning import Q_Learning
-from train import Train_Model
+from train import Model_Interface
 from sarsa import Sarsa
 
 
+# 主函数呦呦
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--mode", choices=["Q", "Sarsa", "DQN", "MC"], default='Q', nargs='?',
+    parser.add_argument("--mode", choices=["Q-Learning", "Sarsa", "DQN", "MC"], default='Q-Learning', nargs='?',
                         required=False, help="模型的选择")
-    parser.add_argument("--epoch", type=int, default=1000, nargs='?', required=False, help="轮次")
-    parser.add_argument("--maze_map", type=str, default="maze_map.csv", nargs='?', required=False, help="导入地图")
-    parser.add_argument("--q_table", type=str, default=None, nargs='?', required=False, help="导入训练好的Q表")
+    parser.add_argument("--epoch", type=int, default=1000, nargs='?', required=False, help="训练的轮次")
+    parser.add_argument("--maze", type=str, default="maze_map.csv", nargs='?', required=False, help="导入地图")
+    parser.add_argument("--model", type=str, default=None, nargs='?', required=False, help="导入训练好的model")
+    parser.add_argument("--model_dir", type=str, default="model\\", nargs='?', required=False, help="模型保存的根目录")
     parser.add_argument("--visual", type=bool, default=False, nargs='?', required=False, help="是否需要可视化")
 
     args = parser.parse_args()
 
     # 初始化迷宫
-    config = Maze_config(args.maze_map)
+    config = Maze_config(args.maze, args.mode, args.model_dir)
     config.update_maze()
 
     # 选用的算法
-    if args.mode == "Q":
-        agent = Q_Learning(config ,args.q_table)
+    if args.mode == "Q-Learning":
+        agent = Q_Learning(config)
     elif args.mode == "Sarsa":
-        agent = Sarsa(config ,args.q_table)
+        agent = Sarsa(config)
+    elif args.mode == "DQN":
+        agent = DQNAgent(config)
     else:
         agent = None
 
@@ -35,9 +40,9 @@ def main():
     game_config = None
     if args.visual:
         pygame.init()
-        game_config = Game_Visual(config ,args.mode)
+        game_config = Game_Visual(config)
 
-    model = Train_Model(args.visual, args.epoch)
+    model = Model_Interface(args.visual, args.epoch)
     model.train(config, agent, game_config)
 
 

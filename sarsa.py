@@ -1,23 +1,27 @@
 import numpy as np
 import pandas as pd
 from maze import Maze_config
+import os
 
 
 # Sarsa算法
 class Sarsa(object):
-    def __init__(self, config: Maze_config, q_table: str = None):
+    def __init__(self, config: Maze_config) -> None:
         # 定义超参数
         self.alpha = 0.1    # 学习率
         self.gamma = 0.9    # 折扣因子
         self.epsilon = 0.1  # 探索率
 
+        self.model_path = config.save_dir + "sarsa_table.csv"
+
         # 如果没有初始化的Q表则生成个空表
-        if q_table is None:
+        if not os.path.exists(self.model_path):
             self.Q = np.zeros([config.NUM_STATES, config.NUM_ACTIONS])
         # 将DataFrame转换为NumPy数组，并确保其尺寸匹配
         else:
-            df = pd.read_csv(q_table)
+            df = pd.read_csv(self.model_path)
             self.Q = df.values
+            print(f"加载了训练好的模型")
 
 
     # 选择下一个行动
@@ -31,13 +35,29 @@ class Sarsa(object):
 
 
     # 更新Q表
-    def update(self, config: Maze_config, action: int, reward: int) -> None:
+    def update(self, config: Maze_config, action: int, reward: int, next_action: int) -> None:
         next_state = config.next_state
         current_state = config.current_state
+        # 更新Q表
         self.Q[current_state, action] += self.alpha * (reward + self.gamma * self.Q[next_state, next_action] - self.Q[current_state, action])
+
+
+    # 训练模型
+    def train_model(self, config: Maze_config, iteration: int) -> int and bool:
+
+        action = self.choose_action(config, iteration)
+        config.get_next_state(action)
+        reward = config.get_reward()
+
+        next_action = self.choose_action(config, iteration + 1)
+        self.update(config, action, reward, next_action)
+
+        judge_position = config.get_judgement()
+
+        return reward, judge_position
 
 
     # 保存Q表
     def save_model(self) -> None:
         df = pd.DataFrame(self.Q)
-        df.to_csv('sarsa_table.csv', index=False)
+        df.to_csv(self.model_path, index=False)

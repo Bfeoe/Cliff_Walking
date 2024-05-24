@@ -4,7 +4,7 @@ from maze import Maze_config
 
 
 class MonteCarlo:
-    def __init__(self, config: Maze_config):
+    def __init__(self, config: Maze_config) -> None:
         self.Q = np.zeros([config.NUM_STATES, config.NUM_ACTIONS])  # 初始化状态动作值函数
         self.returns = {}  # 用于存储每个状态动作对的回报和计数
         self.policy = {}  # 用于存储策略，即每个状态下选择的动作
@@ -15,7 +15,7 @@ class MonteCarlo:
             self.policy[state] = np.random.randint(config.NUM_ACTIONS)
         return self.policy[state]
 
-    def update(self, episode):
+    def update(self, episode) -> None:
         G = 0  # 初始化回报
         for step in reversed(range(len(episode))):
             state, action, reward = episode[step]

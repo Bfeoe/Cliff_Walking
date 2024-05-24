@@ -12,7 +12,10 @@ reward_dir = {
 
 # 定义迷宫类
 class Maze_config(object):
-    def __init__(self, maze_map: str):
+    def __init__(self, maze_map: str, mode: str, save_dir: str) -> None:
+        self.mode = mode.upper()
+        self.save_dir = save_dir
+
         # 定义地图大小
         self.NUM_ROWS = 40  # 行数
         self.NUM_COLS = 40  # 列数

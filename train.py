@@ -2,22 +2,23 @@ import matplotlib.pyplot as plt
 from maze import Maze_config
 
 
-def draw_reward(rewards: list) -> None:
+# 画图
+def draw_reward(rewards: list, mode: str) -> None:
     episode_numbers = list(range(1, len(rewards) + 1))
 
-    plt.figure(figsize=(10, 5))  # 设置图表大小
+    plt.figure(figsize=(10, 5))
     plt.plot(episode_numbers, rewards, marker='o')  # 绘制折线图，使用圆圈标记每个点
 
-    plt.title('Rewards per Episode')
+    plt.title(mode)
     plt.xlabel('Episode')
     plt.ylabel('Reward')
 
     plt.show()
 
 
-# 为多个模型定义一个共同的类
-class Train_Model(object):
-    def __init__(self, visual_mode: bool, epochs: int):
+# 为多个模型定义一个共同的接口
+class Model_Interface(object):
+    def __init__(self, visual_mode: bool, epochs: int) -> None:
         self.visual_mode = visual_mode
         self.epochs = epochs
 
@@ -27,7 +28,7 @@ class Train_Model(object):
 
         # 训练的轮数
         for epoch in range(self.epochs):
-            print(f'第 {epoch} 轮')
+            print(f'第 {epoch+1} 轮')
             i = 0
             rewards = 0
 
@@ -37,25 +38,23 @@ class Train_Model(object):
                 if i % 20 == 0:
                     config.update_maze()
 
-                # 选则下一步的行动,并更新模型
-                action = agent.choose_action(config, i)
-                config.get_next_state(action)
-                reward = config.get_reward()
-                agent.update(config, action, reward)
-
+                # 训练模型
+                reward, judgement = agent.train_model(config, i)
                 rewards += reward
 
+                # 用于判断当前位置是否符合规则
+                if not judgement:
+                    break
+
+                # 可以可视化时随时更新模型
                 if self.visual_mode:
                     game_config.update_screen(config, i, epoch)
 
-                # 用于判断当前位置是否符合规则
-                if not config.get_judgement():
-                    break
-
+            # 置为原位
             config.current_state = 0
 
-            print(f'本轮总步数为: {i+1}\t本轮总奖励为: {rewards}')
+            print(f'本轮总步数为: {i+1}\t本轮总奖励为: {rewards}\n')
             total_reward.append(rewards)
 
         agent.save_model()
-        draw_reward(total_reward)
+        draw_reward(total_reward, config.mode)
