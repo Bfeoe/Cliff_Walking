@@ -12,7 +12,7 @@ class Q_Learning(object):
         self.gamma = 0.9        # 折扣因子
         self.epsilon = epsilon  # 探索率
 
-        self.model_path = config.save_dir + "Q_Learning_Table.csv"
+        self.model_path = config.save_dir + "q_learning_table.csv"
 
         # 如果没有初始化的Q表则生成个空表
         if not os.path.exists(self.model_path):
@@ -37,7 +37,7 @@ class Q_Learning(object):
 
 
     # 更新Q表
-    def update(self, config: Maze_config, action: int, reward: int) -> None:
+    def update(self, config: Maze_config, action: int, reward: float) -> None:
         next_state = config.next_state
         current_state = config.current_state
         # 更新Q表
@@ -45,7 +45,7 @@ class Q_Learning(object):
 
 
     # 训练
-    def train_model(self, config: Maze_config, iteration: int) -> int and bool:
+    def train_model(self, config: Maze_config, iteration: int) -> float and bool:
         # 选则下一步的行动,并更新模型
         action = self.choose_action(config, iteration)
         config.get_next_state(action)

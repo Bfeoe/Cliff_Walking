@@ -1,14 +1,22 @@
 import random
 import pandas as pd
+import numpy as np
+
 
 # reward索引表
 reward_dir = {
-    0: -1,    # 走到空地
-    1: -1000,  # 走到墙壁时
-    2: 10,   # 走到终点位置
-    3: 0,    # 走到终点可能存在的区域
-    5: -1000  # 走到悬崖
+    0: -1,      # 走到空地
+    1: -100,    # 走到墙壁时
+    2: 15,      # 走到终点位置
+    3: np.random.uniform(0, 5),     # 走到终点可能存在的区域
+    5: -1000    # 走到悬崖
 }
+
+
+# 计算曼哈顿距离
+def manhattan_distance(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+
 
 # 定义迷宫类
 class Maze_config(object):
@@ -27,6 +35,9 @@ class Maze_config(object):
         # 初始化迷宫
         df = pd.read_csv(maze_map, header=None)
         self.maze = df.values
+
+        # 记录Agent走过的路径
+        self.visited_positions = set()
 
         # 初始化起始点与目标点(最右下角)
         self.current_state = 0
@@ -50,10 +61,25 @@ class Maze_config(object):
 
 
     # 定义reward函数
-    def get_reward(self) -> int:
+    def get_reward(self) -> float:
+        # 基准奖励
         x, y = self.turn_to_position(self.next_state)
-        reward = reward_dir[self.maze[x][y]]
-        return reward
+        base_reward = reward_dir.get(self.maze[x][y])
+
+        # 概率性接近奖励
+        goal_x, goal_y = self.turn_to_position(self.goal_state)
+        distance = manhattan_distance(x, y, goal_x, goal_y)
+        proximity_reward = 10 / (distance + 1)  # 距离越近，奖励越高
+
+        # 重复路径惩罚
+        if (x, y) in self.visited_positions:
+            repeat_penalty = -5
+        else:
+            repeat_penalty = 0.1
+            self.visited_positions.add((x, y))
+
+        total_reward = base_reward + proximity_reward + repeat_penalty
+        return total_reward
 
 
     # 定义下一个状态函数

@@ -5,7 +5,6 @@ import torch.optim as optim
 import random
 from maze import Maze_config
 import os
-from typing import Tuple
 
 
 # 让他在GPU上运行
@@ -77,7 +76,7 @@ class DQNAgent(object):
 
 
     # 训练函数
-    def train_model(self, config: Maze_config, iteration: int = None) -> Tuple[int, bool]:
+    def train_model(self, config: Maze_config, iteration: int = None) -> tuple[float, bool]:
         state = config.current_state
         action = self.choose_action(state)
 

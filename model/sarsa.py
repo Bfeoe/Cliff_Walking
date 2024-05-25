@@ -35,7 +35,7 @@ class Sarsa(object):
 
 
     # 更新Q表
-    def update(self, config: Maze_config, action: int, reward: int, next_action: int) -> None:
+    def update(self, config: Maze_config, action: int, reward: float, next_action: int) -> None:
         next_state = config.next_state
         current_state = config.current_state
         # 更新Q表
@@ -43,7 +43,7 @@ class Sarsa(object):
 
 
     # 训练模型
-    def train_model(self, config: Maze_config, iteration: int) -> int and bool:
+    def train_model(self, config: Maze_config, iteration: int) -> float and bool:
 
         action = self.choose_action(config, iteration)
         config.get_next_state(action)

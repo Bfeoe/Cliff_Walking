@@ -6,7 +6,6 @@ import random
 from maze import Maze_config
 import os
 from collections import defaultdict
-from typing import Tuple
 
 
 # 让他在GPU上运行
@@ -84,7 +83,6 @@ class MonteCarloAgent(object):
         return torch.argmax(q_values).item()
 
 
-
     # 更新模型
     def update(self):
         # 计算每个状态-动作对的回报
@@ -122,7 +120,7 @@ class MonteCarloAgent(object):
 
 
     # 训练函数
-    def train_model(self, config: Maze_config, iteration: int = None) -> Tuple[int, bool]:
+    def train_model(self, config: Maze_config, iteration: int = None) -> tuple[float, bool]:
         state = config.current_state
         action = self.choose_action(state)
         config.get_next_state(action)

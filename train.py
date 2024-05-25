@@ -22,6 +22,7 @@ class Model_Interface(object):
         self.visual_mode = visual_mode
         self.epochs = epochs
 
+
     # 训练函数
     def train(self, config: Maze_config, agent, game_config = None) -> None:
         total_reward = []
@@ -57,6 +58,7 @@ class Model_Interface(object):
 
             # 置为原位
             config.current_state = 0
+            config.visited_positions = set()
 
             print(f'本轮总步数为: {i+1}\t本轮总奖励为: {rewards}\n')
             total_reward.append(rewards)

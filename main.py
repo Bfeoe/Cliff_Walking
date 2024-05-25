@@ -29,19 +29,24 @@ def main():
     # 选用的算法
     # Q-Learning
     if args.mode == "Q-Learning":
-        agent = Q_Learning(config)
+        if args.visual:
+            agent = Q_Learning(config)
+        else:
+            agent = Q_Learning(config, 0)
     # Sarsa
     elif args.mode == "Sarsa":
-        agent = Sarsa(config)
+        if args.visual:
+            agent = Sarsa(config)
+        else:
+            agent = Sarsa(config, 0)
     # DQN
     elif args.mode == "DQN":
-        agent = DQNAgent(config)
+        agent = DQNAgent(config, 0.01)
     # Monte-Carlo
     elif args.mode == "MC":
-        agent = MonteCarloAgent(config)
+        agent = MonteCarloAgent(config, 0.01)
     else:
         agent = None
-
 
 
     # 是否启用可视化界面
