@@ -16,7 +16,7 @@ color_dir = {
 class Game_Visual(object):
     def __init__(self, config: Maze_config) -> None:
         # 设置可视化视窗大小
-        SCREEN_SIZE = [1000, 1000]
+        SCREEN_SIZE = [800, 800]
         self.BLOCK_SIZE = SCREEN_SIZE[0] // config.NUM_COLS
 
         # 初始化Pygame

@@ -8,7 +8,7 @@ from train import Model_Interface
 from model.sarsa import Sarsa
 
 
-# 主函数呦呦
+# 主函数呦
 def main():
     parser = argparse.ArgumentParser()
 
@@ -27,7 +27,10 @@ def main():
 
     # 选用的算法
     if args.mode == "Q-Learning":
-        agent = Q_Learning(config)
+        if args.visual:
+            agent = Q_Learning(config)
+        else:
+            agent = Q_Learning(config, 0)
     elif args.mode == "Sarsa":
         agent = Sarsa(config)
     elif args.mode == "DQN":

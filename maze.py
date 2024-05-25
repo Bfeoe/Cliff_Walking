@@ -4,9 +4,9 @@ import pandas as pd
 # reward索引表
 reward_dir = {
     0: -1,    # 走到空地
-    1: -100,  # 走到墙壁时
-    2: 100,   # 走到终点位置
-    3: -1,    # 走到终点可能存在的区域
+    1: -1000,  # 走到墙壁时
+    2: 1,   # 走到终点位置
+    3: 1,    # 走到终点可能存在的区域
     5: -1000  # 走到悬崖
 }
 
@@ -34,7 +34,7 @@ class Maze_config(object):
         self.goal_state = self.NUM_STATES - 1
 
         # 迷宫终点可能的区域
-        self.positions_of_goal = [(i, j) for i in range(29, 40) for j in range(29, 40)]
+        self.positions_of_goal = [(i, j) for i in range(30, 40) for j in range(30, 40)]
 
 
     # 将状态转为坐标位置

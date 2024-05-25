@@ -36,7 +36,7 @@ class Model_Interface(object):
             for i in range(500):
 
                 # 训练模型
-                reward, judgement = agent.train_model(config, i)
+                reward, judgement = agent.train_model(config, epoch)
                 rewards += reward
 
                 # 用于判断当前位置是否符合规则
@@ -50,7 +50,6 @@ class Model_Interface(object):
                 # 每移动20步则更改一次目标点位置
                 if i % 20 == 0:
                     config.update_maze()
-
 
             # 置为原位
             config.current_state = 0
