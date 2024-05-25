@@ -16,7 +16,7 @@ color_dir = {
 class Game_Visual(object):
     def __init__(self, config: Maze_config) -> None:
         # 设置可视化视窗大小
-        SCREEN_SIZE = [800, 800]
+        SCREEN_SIZE = [1000, 1000]
         self.BLOCK_SIZE = SCREEN_SIZE[0] // config.NUM_COLS
 
         # 初始化Pygame
@@ -25,46 +25,44 @@ class Game_Visual(object):
 
 
     # 填某一块的颜色
-    def draw_block(self, color: tuple, current_position: tuple) -> None:
+    def draw_block(self, color: tuple, position: tuple) -> None:
         block = pygame.Surface((self.BLOCK_SIZE, self.BLOCK_SIZE))
         block.fill(color)
         rect = block.get_rect()
-        rect.topleft = (current_position[1] * self.BLOCK_SIZE, current_position[0] * self.BLOCK_SIZE)
+        rect.topleft = (position[1] * self.BLOCK_SIZE, position[0] * self.BLOCK_SIZE)
+
         self.screen.blit(block, rect)
 
 
     # 区分颜色然后画图
-    def draw_maze(self, config: Maze_config, current_position: tuple, goal_position: tuple) -> None:
+    def draw_maze(self, config: Maze_config) -> None:
         for i in range(len(config.maze)):
             for j in range(len(config.maze[i])):
                 color = color_dir[config.maze[i][j]]
                 self.draw_block(color, (i, j))
-
-        self.draw_block((0, 255, 0), current_position)
-        self.draw_block((255, 215, 0), goal_position)
 
 
     # 更新界面
     def update_screen(self, config: Maze_config, steps: int, current_epochs: int) -> None:
         self.screen.fill((255, 255, 255))
 
-        # 当前坐标与此时目标的坐标
-        current_position = config.turn_to_position(config.current_state)
-        goal_position = config.turn_to_position(config.goal_state)
-
         # 画迷宫图像
-        self.draw_maze(config, current_position, goal_position)
+        self.draw_maze(config)
+
+        # 当前坐标
+        current_position = config.turn_to_position(config.current_state)
+        self.draw_block((0, 255, 0), current_position)
 
         # 显示步数
-        text = self.font.render("Step: {}".format(steps), True, (0, 0, 0))
-        self.screen.blit(text, (10, 0))
+        text_steps = self.font.render(f"Step: {steps}", True, (0, 0, 0))
+        self.screen.blit(text_steps, (10, 0))
 
         # 显示轮次
-        text = self.font.render("Epoch: {}".format(current_epochs), True, (0, 0, 0))
-        self.screen.blit(text, (210, 0))
+        text_epochs = self.font.render(f"Epoch: {current_epochs}", True, (0, 0, 0))
+        self.screen.blit(text_epochs, (210, 0))
 
         # 显示mode
-        text = self.font.render(f"Mode: {config.mode}", True, (0, 0, 0))
-        self.screen.blit(text, (410, 0))
+        text_mode = self.font.render(f"Mode: {config.mode}", True, (0, 0, 0))
+        self.screen.blit(text_mode, (410, 0))
 
         pygame.display.update()

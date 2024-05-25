@@ -34,9 +34,6 @@ class Model_Interface(object):
 
             # 每次最大步数
             for i in range(500):
-                # 每移动20步则更改一次目标点位置
-                if i % 20 == 0:
-                    config.update_maze()
 
                 # 训练模型
                 reward, judgement = agent.train_model(config, i)
@@ -49,6 +46,11 @@ class Model_Interface(object):
                 # 可以可视化时随时更新模型
                 if self.visual_mode:
                     game_config.update_screen(config, i, epoch)
+
+                # 每移动20步则更改一次目标点位置
+                if i % 20 == 0:
+                    config.update_maze()
+
 
             # 置为原位
             config.current_state = 0

@@ -1,11 +1,11 @@
 import argparse
 import pygame
-from dqn import DQNAgent
+from model.dqn import DQNAgent
 from game import Game_Visual
 from maze import Maze_config
-from q_learning import Q_Learning
+from model.q_learning import Q_Learning
 from train import Model_Interface
-from sarsa import Sarsa
+from model.sarsa import Sarsa
 
 
 # 主函数呦呦
@@ -16,8 +16,7 @@ def main():
                         required=False, help="模型的选择")
     parser.add_argument("--epoch", type=int, default=1000, nargs='?', required=False, help="训练的轮次")
     parser.add_argument("--maze", type=str, default="maze_map.csv", nargs='?', required=False, help="导入地图")
-    parser.add_argument("--model", type=str, default=None, nargs='?', required=False, help="导入训练好的model")
-    parser.add_argument("--model_dir", type=str, default="model\\", nargs='?', required=False, help="模型保存的根目录")
+    parser.add_argument("--model_dir", type=str, default="result\\", nargs='?', required=False, help="模型保存的根目录")
     parser.add_argument("--visual", type=bool, default=False, nargs='?', required=False, help="是否需要可视化")
 
     args = parser.parse_args()
