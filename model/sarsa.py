@@ -6,11 +6,11 @@ import os
 
 # Sarsa算法
 class Sarsa(object):
-    def __init__(self, config: Maze_config) -> None:
+    def __init__(self, config: Maze_config, epsilon: float = 0.1) -> None:
         # 定义超参数
         self.alpha = 0.1    # 学习率
         self.gamma = 0.9    # 折扣因子
-        self.epsilon = 0.1  # 探索率
+        self.epsilon = epsilon  # 探索率
 
         self.model_path = config.save_dir + "sarsa_table.csv"
 

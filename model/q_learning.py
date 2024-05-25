@@ -8,7 +8,7 @@ import os
 class Q_Learning(object):
     def __init__(self, config: Maze_config, epsilon: float = 0.1) -> None:
         # 定义超参数
-        self.alpha = 0.1        # 学习率
+        self.alpha = 0.05        # 学习率
         self.gamma = 0.9        # 折扣因子
         self.epsilon = epsilon  # 探索率
 
@@ -17,11 +17,12 @@ class Q_Learning(object):
         # 如果没有初始化的Q表则生成个空表
         if not os.path.exists(self.model_path):
             self.Q = np.zeros([config.NUM_STATES, config.NUM_ACTIONS])
-        # 将DataFrame转换为NumPy数组，并确保其尺寸匹配
+        # 将DataFrame转换为NumPy数组
         else:
-            df = pd.read_csv(self.model_path)
+            df = pd.read_csv(self.model_path, encoding="utf-8")
             self.Q = df.values
             print(f"加载了训练好的模型")
+            print(self.Q.shape)
 
 
     # 选择下一个行动
@@ -59,4 +60,4 @@ class Q_Learning(object):
     # 保存Q表
     def save_model(self) -> None:
         df = pd.DataFrame(self.Q)
-        df.to_csv(self.model_path, index=False)
+        df.to_csv(self.model_path, index=False, encoding="utf-8")

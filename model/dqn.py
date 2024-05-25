@@ -5,10 +5,12 @@ import torch.optim as optim
 import random
 from maze import Maze_config
 import os
+from typing import Tuple
 
 
 # 让他在GPU上运行
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 # 定义模型
 class DQN(nn.Module):
@@ -17,6 +19,7 @@ class DQN(nn.Module):
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, output_size)
+
 
     # 前向传播
     def forward(self, x) -> torch.Tensor:
@@ -28,14 +31,14 @@ class DQN(nn.Module):
 
 # 定义Agent
 class DQNAgent(object):
-    def __init__(self, config: Maze_config, hidden_size: int = 64) -> None:
+    def __init__(self, config: Maze_config, epsilon: float = 1.0, hidden_size: int = 64) -> None:
         # 初始化基本参数
         self.state_size = config.NUM_STATES
         self.action_size = config.NUM_ACTIONS
 
         # 定义超参数
         learning_rate = 0.001       # 学习率
-        self.epsilon = 1.0          # 探索率
+        self.epsilon = epsilon      # 探索率
         self.epsilon_min = 0.01     # 探索率下限
         self.epsilon_decay = 0.995  # 探索率的衰减因子
         self.gamma = 0.99           # 折扣因子决定了智能体对未来奖励的重视程度
@@ -74,7 +77,7 @@ class DQNAgent(object):
 
 
     # 训练函数
-    def train_model(self, config: Maze_config, iteration: int = None) -> int and bool:
+    def train_model(self, config: Maze_config, iteration: int = None) -> Tuple[int, bool]:
         state = config.current_state
         action = self.choose_action(state)
 

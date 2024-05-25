@@ -6,6 +6,7 @@ from maze import Maze_config
 from model.q_learning import Q_Learning
 from train import Model_Interface
 from model.sarsa import Sarsa
+from model.monte_carlo import MonteCarloAgent
 
 
 # 主函数呦
@@ -26,17 +27,22 @@ def main():
     config.update_maze()
 
     # 选用的算法
+    # Q-Learning
     if args.mode == "Q-Learning":
-        if args.visual:
-            agent = Q_Learning(config)
-        else:
-            agent = Q_Learning(config, 0)
+        agent = Q_Learning(config)
+    # Sarsa
     elif args.mode == "Sarsa":
         agent = Sarsa(config)
+    # DQN
     elif args.mode == "DQN":
         agent = DQNAgent(config)
+    # Monte-Carlo
+    elif args.mode == "MC":
+        agent = MonteCarloAgent(config)
     else:
         agent = None
+
+
 
     # 是否启用可视化界面
     game_config = None

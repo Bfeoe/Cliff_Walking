@@ -51,6 +51,10 @@ class Model_Interface(object):
                 if i % 20 == 0:
                     config.update_maze()
 
+            # monte_carlo方法是训练完一条完整路径后一并更新
+            if config.mode == "MC":
+                agent.update()
+
             # 置为原位
             config.current_state = 0
 
