@@ -13,9 +13,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # 定义模型
-class MonteCarloModel(nn.Module):
+class Monte_Carlo_Model(nn.Module):
     def __init__(self, input_size: int, output_size: int, hidden_size: int = 64) -> None:
-        super(MonteCarloModel, self).__init__()
+        super(Monte_Carlo_Model, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, output_size)
@@ -30,7 +30,7 @@ class MonteCarloModel(nn.Module):
 
 
 # 定义Agent
-class MonteCarloAgent(object):
+class Monte_Carlo(object):
     def __init__(self, config: Maze_config, epsilon: float = 1.0, hidden_size: int = 64) -> None:
         # 初始化基本参数
         self.state_size = config.NUM_STATES
@@ -46,7 +46,7 @@ class MonteCarloAgent(object):
         self.model_path = config.save_dir + "monte_carlo_model.pth"
 
         # 初始化蒙特卡洛模型
-        self.model = MonteCarloModel(self.state_size, self.action_size, hidden_size).to(device)
+        self.model = Monte_Carlo_Model(self.state_size, self.action_size, hidden_size).to(device)
         # 加载模型
         if os.path.exists(self.model_path):
             self.model.load_state_dict(torch.load(self.model_path))

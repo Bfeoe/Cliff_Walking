@@ -3,13 +3,18 @@ import pandas as pd
 import numpy as np
 
 
+# 鼓励在终点的区域之内探索
+random_reward = np.random.uniform(0, 2)
+
 # reward索引表
 reward_dir = {
-    0: -1,      # 走到空地
-    1: -100,    # 走到墙壁时
-    2: 15,      # 走到终点位置
-    3: np.random.uniform(0, 5),     # 走到终点可能存在的区域
-    5: -1000    # 走到悬崖
+    0: -1,              # 空地
+    1: -1000,            # 墙壁时
+    2: 15,              # 终点位置
+    3: random_reward,   # 终点可能存在的区域
+    4: -4,              # 危险区域(贴近墙壁或悬崖的位置)
+    5: -1000,           # 悬崖
+    6: 4                # 手动引导点
 }
 
 
@@ -47,6 +52,9 @@ class Maze_config(object):
         # 迷宫终点可能的区域
         self.positions_of_goal = [(i, j) for i in range(30, 40) for j in range(30, 40)]
 
+        # 设置引导点(终点区域的最左上角)
+        self.desire_point = (30, 30)
+
 
     # 将状态转为坐标位置
     def turn_to_position(self, state: int) -> tuple:
@@ -58,6 +66,26 @@ class Maze_config(object):
     def turn_to_state(self, x: int , y: int) -> int:
         state = x * self.NUM_COLS + y
         return state
+
+
+    # 处理危险点的策略
+    def update_maze(self) -> None:
+        # 设置期望到达的点
+        print("启用适当的引导策略")
+        self.maze[self.desire_point[0]][self.desire_point[1]] = 6
+
+        # 获取值为1或5的危险点
+        dangerous_point = np.argwhere((self.maze == 1) | (self.maze == 5))
+
+        # 遍历这些坐标点，检查其周围的点
+        for (x, y) in dangerous_point:
+            # 上下左右四个点的坐标
+            neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+            for (nx, ny) in neighbors:
+                # 检查是否在数组范围内，并且值为0
+                if 0 <= nx < 40 and 0 <= ny < 40:
+                    if self.maze[nx][ny] == 0:
+                        self.maze[nx][ny] = 4
 
 
     # 定义reward函数
@@ -100,7 +128,7 @@ class Maze_config(object):
 
 
     #  更新迷宫的终点
-    def update_maze(self) -> None:
+    def update_goal(self) -> None:
         goal_x, goal_y = self.turn_to_position(self.goal_state)
         self.maze[goal_x][goal_y] = 3
 
@@ -125,6 +153,10 @@ class Maze_config(object):
         elif self.maze[x][y] == 2:
             print("成功到达")
             return False
+        elif self.maze[x][y] == 6:
+            self.current_state = self.next_state
+            self.maze[x][y] = 3
+            return True
         # 其余位置更新当前位置状态后继续
         else:
             self.current_state = self.next_state

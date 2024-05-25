@@ -1,12 +1,14 @@
 import argparse
 import pygame
-from model.dqn import DQNAgent
+# 其他组件
 from game import Game_Visual
 from maze import Maze_config
-from model.q_learning import Q_Learning
 from train import Model_Interface
+# 我的模型
+from model.q_learning import Q_Learning
+from model.dqn import DQN
 from model.sarsa import Sarsa
-from model.monte_carlo import MonteCarloAgent
+from model.monte_carlo import Monte_Carlo
 
 
 # 主函数呦
@@ -19,32 +21,52 @@ def main():
     parser.add_argument("--maze", type=str, default="maze_map.csv", nargs='?', required=False, help="导入地图")
     parser.add_argument("--model_dir", type=str, default="result\\", nargs='?', required=False, help="模型保存的根目录")
     parser.add_argument("--visual", type=bool, default=False, nargs='?', required=False, help="是否需要可视化")
+    parser.add_argument("--tactic", type=bool, default=False, nargs='?', required=False, help="一些reward的策略")
 
     args = parser.parse_args()
 
     # 初始化迷宫
     config = Maze_config(args.maze, args.mode, args.model_dir)
-    config.update_maze()
+    config.update_goal()
+
+    # 处理危险点的策略
+    if args.tactic:
+        config.update_maze()
+
 
     # 选用的算法
     # Q-Learning
     if args.mode == "Q-Learning":
         if args.visual:
-            agent = Q_Learning(config)
-        else:
+            print("可视化预测")
             agent = Q_Learning(config, 0)
+        else:
+            print("训练模型")
+            agent = Q_Learning(config)
     # Sarsa
     elif args.mode == "Sarsa":
         if args.visual:
-            agent = Sarsa(config)
-        else:
+            print("可视化预测")
             agent = Sarsa(config, 0)
+        else:
+            print("训练模型")
+            agent = Sarsa(config)
     # DQN
     elif args.mode == "DQN":
-        agent = DQNAgent(config, 0.01)
+        if args.visual:
+            print("可视化预测")
+            agent = DQN(config, 0.01)
+        else:
+            print("训练模型")
+            agent = DQN(config)
     # Monte-Carlo
     elif args.mode == "MC":
-        agent = MonteCarloAgent(config, 0.01)
+        if args.visual:
+            print("可视化预测")
+            agent = Monte_Carlo(config, 0.01)
+        else:
+            print("训练模型")
+            agent = Monte_Carlo(config)
     else:
         agent = None
 

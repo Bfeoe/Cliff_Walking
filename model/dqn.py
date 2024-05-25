@@ -12,9 +12,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # 定义模型
-class DQN(nn.Module):
+class DQN_Model(nn.Module):
     def __init__(self, input_size: int, output_size: int, hidden_size: int = 64) -> None:
-        super(DQN, self).__init__()
+        super(DQN_Model, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, output_size)
@@ -29,7 +29,7 @@ class DQN(nn.Module):
 
 
 # 定义Agent
-class DQNAgent(object):
+class DQN(object):
     def __init__(self, config: Maze_config, epsilon: float = 1.0, hidden_size: int = 64) -> None:
         # 初始化基本参数
         self.state_size = config.NUM_STATES
@@ -45,7 +45,7 @@ class DQNAgent(object):
         self.model_path = config.save_dir + "dqn_model.pth"
 
         # 初始化DQN模型
-        self.model = DQN(self.state_size, self.action_size, hidden_size).to(device)
+        self.model = DQN_Model(self.state_size, self.action_size, hidden_size).to(device)
         # 加载模型
         if os.path.exists(self.model_path):
             self.model.load_state_dict(torch.load(self.model_path))

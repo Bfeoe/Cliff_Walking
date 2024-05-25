@@ -50,7 +50,7 @@ class Model_Interface(object):
 
                 # 每移动20步则更改一次目标点位置
                 if i % 20 == 0:
-                    config.update_maze()
+                    config.update_goal()
 
             # monte_carlo方法是训练完一条完整路径后一并更新
             if config.mode == "MC":
@@ -58,6 +58,7 @@ class Model_Interface(object):
 
             # 置为原位
             config.current_state = 0
+            config.maze[config.desire_point[0]][config.desire_point[1]] = 6
             config.visited_positions = set()
 
             print(f'本轮总步数为: {i+1}\t本轮总奖励为: {rewards}\n')

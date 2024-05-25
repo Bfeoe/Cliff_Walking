@@ -4,11 +4,13 @@ from maze import Maze_config
 
 # 颜色字典
 color_dir = {
-    0: (255, 255, 255),   # white
-    1: (0, 0, 0),         # black
-    2: (255, 215, 0),     # golden
-    3: (72, 118, 255),    # blue
-    5: (255, 0, 0),       # red
+    0: (255, 255, 255),     # white
+    1: (0, 0, 0),           # black
+    2: (255, 215, 0),       # golden
+    3: (0,255,255),         # cyan
+    4: (192,192,192),       # grey
+    5: (255, 0, 0),         # red
+    6: (0,0,255),           # blue
 }
 
 
@@ -51,7 +53,7 @@ class Game_Visual(object):
 
         # 当前坐标
         current_position = config.turn_to_position(config.current_state)
-        self.draw_block((0, 255, 0), current_position)
+        self.draw_block((0, 255, 0), current_position)    # green
 
         # 显示步数
         text_steps = self.font.render(f"Step: {steps}", True, (0, 0, 0))
