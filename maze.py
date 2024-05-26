@@ -6,7 +6,7 @@ import numpy as np
 # 鼓励在终点的区域之内探索
 random_reward = np.random.uniform(0, 2)
 
-# reward索引表
+# reward 索引表
 reward_dir = {
     0: -1,              # 空地
     1: -1000,            # 墙壁时
@@ -25,7 +25,7 @@ def manhattan_distance(x1, y1, x2, y2):
 
 # 定义迷宫类
 class Maze_config(object):
-    def __init__(self, maze_map: str, mode: str, save_dir: str) -> None:
+    def __init__(self, mode: str, maze_map: str, save_dir: str) -> None:
         self.mode = mode.upper()
         self.save_dir = save_dir
 
@@ -41,8 +41,10 @@ class Maze_config(object):
         df = pd.read_csv(maze_map, header=None)
         self.maze = df.values
 
-        # 记录Agent走过的路径
+        # 记录 Agent 走过的路径
         self.visited_positions = set()
+        self.distances = 78
+        self.converge_epoch = 0
 
         # 初始化起始点与目标点(最右下角)
         self.current_state = 0
@@ -74,30 +76,36 @@ class Maze_config(object):
         print("启用适当的引导策略")
         self.maze[self.desire_point[0]][self.desire_point[1]] = 6
 
-        # 获取值为1或5的危险点
+        # 获取值为 1 或 5 的危险点
         dangerous_point = np.argwhere((self.maze == 1) | (self.maze == 5))
 
-        # 遍历这些坐标点，检查其周围的点
+        # 遍历这些坐标点及其周围的点
         for (x, y) in dangerous_point:
             # 上下左右四个点的坐标
             neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
             for (nx, ny) in neighbors:
-                # 检查是否在数组范围内，并且值为0
+                # 检查是否在数组范围内且值为 0
                 if 0 <= nx < 40 and 0 <= ny < 40:
                     if self.maze[nx][ny] == 0:
                         self.maze[nx][ny] = 4
 
 
-    # 定义reward函数
+    # 定义 reward 函数
     def get_reward(self) -> float:
         # 基准奖励
         x, y = self.turn_to_position(self.next_state)
         base_reward = reward_dir.get(self.maze[x][y])
 
-        # 概率性接近奖励
+        # 接近奖励
         goal_x, goal_y = self.turn_to_position(self.goal_state)
         distance = manhattan_distance(x, y, goal_x, goal_y)
-        proximity_reward = 10 / (distance + 1)  # 距离越近，奖励越高
+        # 距离越近则奖励越高
+        if distance <= self.distances:
+            proximity_reward = 10 / (distance + 1)
+        # 否则予与负的奖励
+        else:
+            proximity_reward = - (5 / (distance + 1))
+        self.distances = distance
 
         # 重复路径惩罚
         if (x, y) in self.visited_positions:
@@ -153,6 +161,7 @@ class Maze_config(object):
         elif self.maze[x][y] == 2:
             print("成功到达")
             return False
+        # 引导点只允许到一次
         elif self.maze[x][y] == 6:
             self.current_state = self.next_state
             self.maze[x][y] = 3

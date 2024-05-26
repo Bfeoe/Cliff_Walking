@@ -7,21 +7,21 @@ color_dir = {
     0: (255, 255, 255),     # white
     1: (0, 0, 0),           # black
     2: (255, 215, 0),       # golden
-    3: (0,255,255),         # cyan
+    3: (0,0,255),           # blue
     4: (192,192,192),       # grey
     5: (255, 0, 0),         # red
-    6: (0,0,255),           # blue
+    6: (0,255,255),         # cyan
 }
 
 
-# 使用pygame实现可视化
+# 使用 pygame 实现可视化
 class Game_Visual(object):
     def __init__(self, config: Maze_config) -> None:
         # 设置可视化视窗大小
         SCREEN_SIZE = [800, 800]
         self.BLOCK_SIZE = SCREEN_SIZE[0] // config.NUM_COLS
 
-        # 初始化Pygame
+        # 初始化 Pygame
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.font = pygame.font.SysFont(None, 30)    # 字体
 
@@ -63,7 +63,7 @@ class Game_Visual(object):
         text_epochs = self.font.render(f"Epoch: {current_epochs}", True, (0, 0, 0))
         self.screen.blit(text_epochs, (210, 0))
 
-        # 显示mode
+        # 显示 mode
         text_mode = self.font.render(f"Mode: {config.mode}", True, (0, 0, 0))
         self.screen.blit(text_mode, (410, 0))
 

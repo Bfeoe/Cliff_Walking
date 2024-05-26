@@ -8,7 +8,7 @@ import os
 from collections import defaultdict
 
 
-# 让他在GPU上运行
+# 让他在 GPU 上运行
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -29,7 +29,7 @@ class Monte_Carlo_Model(nn.Module):
         return x
 
 
-# 定义Agent
+# 定义 Agent
 class Monte_Carlo(object):
     def __init__(self, config: Maze_config, epsilon: float = 1.0, hidden_size: int = 64) -> None:
         # 初始化基本参数
@@ -43,6 +43,10 @@ class Monte_Carlo(object):
         self.epsilon_decay = 0.995  # 探索率的衰减因子
         self.gamma = 0.99           # 折扣因子决定了智能体对未来奖励的重视程度
 
+        # 判敛
+        self.threshold = 10
+        self.window = 20
+
         self.model_path = config.save_dir + "monte_carlo_model.pth"
 
         # 初始化蒙特卡洛模型
@@ -52,7 +56,7 @@ class Monte_Carlo(object):
             self.model.load_state_dict(torch.load(self.model_path))
             print(f"加载了训练好的模型")
 
-        # 初始化Adam优化器和均方误差损失函数
+        # 初始化 Adam 优化器和均方误差损失函数
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         self.criterion = nn.MSELoss()
 
@@ -64,7 +68,7 @@ class Monte_Carlo(object):
         self.episode = []
 
 
-    # 将int转为one-hot向量
+    # 将 int 转为 one-hot 向量
     def turn_to_tensor(self, state: int) -> torch.Tensor:
         state_one_hot = np.zeros(self.state_size)
         state_one_hot[state] = 1
@@ -74,13 +78,19 @@ class Monte_Carlo(object):
 
     # 根据当前策略选择动作
     def choose_action(self, state: int) -> int:
-        # 以epsilon的概率随机选择动作
+        # 以 epsilon 的概率随机选择动作
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
-        # 选择Q值最大的动作
+        # 选择 Q 值最大的动作
         state = self.turn_to_tensor(state)
         q_values = self.model(state)  # 前向传播，通过神经网络计算 Q 值
         return torch.argmax(q_values).item()
+
+
+    # 判敛
+    def converge(self, rewards: list) -> bool:
+        recent_rewards = rewards[-self.window:]
+        return np.std(recent_rewards) < self.threshold
 
 
     # 更新模型
@@ -132,6 +142,7 @@ class Monte_Carlo(object):
         return reward, judge_position
 
 
+    # 保存模型
     def save_model(self) -> None:
         if not os.path.exists(os.path.dirname(self.model_path)):
             os.makedirs(os.path.dirname(self.model_path))

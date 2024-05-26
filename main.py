@@ -18,55 +18,48 @@ def main():
     parser.add_argument("--mode", choices=["Q-Learning", "Sarsa", "DQN", "MC"], default='Q-Learning', nargs='?',
                         required=False, help="模型的选择")
     parser.add_argument("--epoch", type=int, default=1000, nargs='?', required=False, help="训练的轮次")
+
     parser.add_argument("--maze", type=str, default="maze_map.csv", nargs='?', required=False, help="导入地图")
     parser.add_argument("--model_dir", type=str, default="result\\", nargs='?', required=False, help="模型保存的根目录")
+
     parser.add_argument("--visual", type=bool, default=False, nargs='?', required=False, help="是否需要可视化")
+    parser.add_argument("--explore", type=bool, default=True, nargs='?', required=False, help="是否启用探索")
+
     parser.add_argument("--tactic", type=bool, default=False, nargs='?', required=False, help="一些reward的策略")
 
     args = parser.parse_args()
 
-    # 初始化迷宫
-    config = Maze_config(args.maze, args.mode, args.model_dir)
+    # 初始化迷宫和目标点
+    config = Maze_config(args.mode, args.maze, args.model_dir)
     config.update_goal()
 
     # 处理危险点的策略
     if args.tactic:
         config.update_maze()
 
+    # 可视化情况之下默认禁用探索以保证准确预测
+    if args.visual:
+        args.explore = False
+
+    epsilon = 1.0   # Q-Learning 和 Sarsa 算法整除了10
+    # 探索率置为0
+    if not args.explore:
+        epsilon = 0
+    print("epsilon:", epsilon, "\n")
 
     # 选用的算法
     # Q-Learning
     if args.mode == "Q-Learning":
-        if args.visual:
-            print("可视化预测")
-            agent = Q_Learning(config, 0)
-        else:
-            print("训练模型")
-            agent = Q_Learning(config)
+        agent = Q_Learning(config, epsilon)
     # Sarsa
     elif args.mode == "Sarsa":
-        if args.visual:
-            print("可视化预测")
-            agent = Sarsa(config, 0)
-        else:
-            print("训练模型")
-            agent = Sarsa(config)
+        agent = Sarsa(config, epsilon)
     # DQN
     elif args.mode == "DQN":
-        if args.visual:
-            print("可视化预测")
-            agent = DQN(config, 0.01)
-        else:
-            print("训练模型")
-            agent = DQN(config)
+        agent = DQN(config, epsilon)
     # Monte-Carlo
     elif args.mode == "MC":
-        if args.visual:
-            print("可视化预测")
-            agent = Monte_Carlo(config, 0.01)
-        else:
-            print("训练模型")
-            agent = Monte_Carlo(config)
+        agent = Monte_Carlo(config, epsilon)
     else:
         agent = None
 
