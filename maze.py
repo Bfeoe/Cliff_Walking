@@ -4,7 +4,7 @@ import numpy as np
 
 
 # 鼓励在终点的区域之内探索
-random_reward = np.random.uniform(0, 2)
+random_reward = np.random.uniform(0, 4)
 
 # reward 索引表
 reward_dir = {
@@ -25,8 +25,8 @@ def manhattan_distance(x1, y1, x2, y2):
 
 # 定义迷宫类
 class Maze_config(object):
-    def __init__(self, mode: str, maze_map: str, save_dir: str) -> None:
-        self.mode = mode.upper()
+    def __init__(self, model: str, maze_map: str, save_dir: str) -> None:
+        self.model = model.upper()
         self.save_dir = save_dir
 
         # 定义地图大小
@@ -44,7 +44,6 @@ class Maze_config(object):
         # 记录 Agent 走过的路径
         self.visited_positions = set()
         self.distances = 78
-        self.converge_epoch = 0
 
         # 初始化起始点与目标点(最右下角)
         self.current_state = 0
@@ -106,6 +105,8 @@ class Maze_config(object):
         else:
             proximity_reward = - (5 / (distance + 1))
         self.distances = distance
+
+        # proximity_reward = 10 / (distance + 1)  # 距离越近，奖励越高
 
         # 重复路径惩罚
         if (x, y) in self.visited_positions:

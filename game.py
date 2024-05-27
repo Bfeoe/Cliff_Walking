@@ -10,7 +10,7 @@ color_dir = {
     3: (0,0,255),           # blue
     4: (192,192,192),       # grey
     5: (255, 0, 0),         # red
-    6: (0,255,255),         # cyan
+    6: (0,0,255),           # blue
 }
 
 
@@ -64,7 +64,7 @@ class Game_Visual(object):
         self.screen.blit(text_epochs, (210, 0))
 
         # 显示 mode
-        text_mode = self.font.render(f"Mode: {config.mode}", True, (0, 0, 0))
+        text_mode = self.font.render(f"Mode: {config.model}", True, (0, 0, 0))
         self.screen.blit(text_mode, (410, 0))
 
         pygame.display.update()

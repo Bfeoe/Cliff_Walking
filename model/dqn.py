@@ -5,6 +5,7 @@ import torch.optim as optim
 import random
 from maze import Maze_config
 import os
+from collections import deque
 
 
 # 让它在 GPU 上运行
@@ -43,13 +44,8 @@ class DQN(object):
         self.epsilon_decay = 0.995  # 探索率的衰减因子
         self.gamma = 0.99           # 折扣因子决定了智能体对未来奖励的重视程度
 
-        # 判敛
-        self.threshold = 10
-        self.window = 20
-
-        self.model_path = config.save_dir + "dqn_model.pth"
-
         # 初始化DQN模型
+        self.model_path = config.save_dir + "dqn_model.pth"
         self.model = DQN_Model(self.state_size, self.action_size, hidden_size).to(device)
         # 加载模型
         if os.path.exists(self.model_path):
@@ -59,6 +55,19 @@ class DQN(object):
         # 初始化 Adam 优化器和均方误差损失函数
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         self.criterion = nn.MSELoss()
+
+        # 设置目标网络
+        self.target_model = DQN_Model(self.state_size, self.action_size, hidden_size).to(device)
+        self.update_target_model()
+
+        # 初始化经验回放池
+        self.memory = deque(maxlen=2000)
+        self.batch_size = 64
+
+
+    # 更新目标网络
+    def update_target_model(self):
+        self.target_model.load_state_dict(self.model.state_dict())
 
 
     # 将 int 转为 one-hot 向量
@@ -80,14 +89,45 @@ class DQN(object):
         return torch.argmax(q_values).item()
 
 
-    # 判敛
-    def converge(self, rewards: list) -> bool:
-        recent_rewards = rewards[-self.window:]
-        return np.std(recent_rewards) < self.threshold
+    # 记忆
+    def remember(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+
+
+    # 经验回放
+    def replay(self) -> None:
+        if len(self.memory) < self.batch_size:
+            return
+
+        minibatch = random.sample(self.memory, self.batch_size)
+        state_batch = torch.cat([self.turn_to_tensor(state) for state, _, _, _, _ in minibatch])
+        next_state_batch = torch.cat([self.turn_to_tensor(next_state) for _, _, _, next_state, _ in minibatch])
+
+        q_values = self.model(state_batch)
+        next_q_values = self.target_model(next_state_batch)
+
+        target = q_values.clone()
+        for i, (state, action, reward, next_state, done) in enumerate(minibatch):
+            # G 了不考虑未来回报
+            if done:
+                target[i][action] = reward
+            # Q 是折扣后的未来奖励
+            else:
+                target[i][action] = reward + self.gamma * torch.max(next_q_values[i]).item()
+
+            # 计算损失和优化
+            loss = self.criterion(q_values, target.detach())
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+        # 更新epsilon
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
 
 
     # 训练函数
-    def train_model(self, config: Maze_config, iteration: int, rewards: list) -> tuple[float, bool]:
+    def train_model(self, config: Maze_config, iteration: int) -> tuple[float, bool]:
         state = config.current_state
         action = self.choose_action(state)
 
@@ -98,33 +138,14 @@ class DQN(object):
         # 计算 reward
         reward = config.get_reward()
 
-        judge_position = config.get_judgement()
+        # 判断位置
+        done = config.get_judgement()
 
-        # 将两个状态转为向量形式
-        state_tensor =  self.turn_to_tensor(state)
-        next_state_tensor = self.turn_to_tensor(next_state)
+        # 经验回放
+        self.remember(state, action, reward, next_state, done)
+        self.replay()
 
-        # 计算当前状态的 Q 值
-        q_values = self.model(state_tensor)
-        target = q_values.clone()
-
-        # 目标 Q 值为即时奖励加上折扣后的未来奖励
-        next_q_values = self.model(next_state_tensor)
-        target[0][action] = reward + self.gamma * torch.max(next_q_values).item()
-
-        # 计算损失
-        loss = self.criterion(q_values, target.detach())
-
-        # 反向传播和优化
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-
-        # 更新探索率
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
-
-        return reward, judge_position
+        return reward, done
 
 
     # 保存模型

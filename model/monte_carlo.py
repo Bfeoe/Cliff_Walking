@@ -43,10 +43,6 @@ class Monte_Carlo(object):
         self.epsilon_decay = 0.995  # 探索率的衰减因子
         self.gamma = 0.99           # 折扣因子决定了智能体对未来奖励的重视程度
 
-        # 判敛
-        self.threshold = 10
-        self.window = 20
-
         self.model_path = config.save_dir + "monte_carlo_model.pth"
 
         # 初始化蒙特卡洛模型
@@ -85,12 +81,6 @@ class Monte_Carlo(object):
         state = self.turn_to_tensor(state)
         q_values = self.model(state)  # 前向传播，通过神经网络计算 Q 值
         return torch.argmax(q_values).item()
-
-
-    # 判敛
-    def converge(self, rewards: list) -> bool:
-        recent_rewards = rewards[-self.window:]
-        return np.std(recent_rewards) < self.threshold
 
 
     # 更新模型

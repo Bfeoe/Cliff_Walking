@@ -15,7 +15,7 @@ from model.monte_carlo import Monte_Carlo
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--mode", choices=["Q-Learning", "Sarsa", "DQN", "MC"], default='Q-Learning', nargs='?',
+    parser.add_argument("--model", choices=["Q-Learning", "Sarsa", "DQN", "MC"], default='Q-Learning', nargs='?',
                         required=False, help="模型的选择")
     parser.add_argument("--epoch", type=int, default=1000, nargs='?', required=False, help="训练的轮次")
 
@@ -24,13 +24,14 @@ def main():
 
     parser.add_argument("--visual", type=bool, default=False, nargs='?', required=False, help="是否需要可视化")
     parser.add_argument("--explore", type=bool, default=True, nargs='?', required=False, help="是否启用探索")
+    parser.add_argument("--epsilon", type=float, default=1.0, nargs='?', required=False, help="探索率的设置")
 
-    parser.add_argument("--tactic", type=bool, default=False, nargs='?', required=False, help="一些reward的策略")
+    parser.add_argument("--tactic", type=bool, default=True, nargs='?', required=False, help="一些reward的策略")
 
     args = parser.parse_args()
 
     # 初始化迷宫和目标点
-    config = Maze_config(args.mode, args.maze, args.model_dir)
+    config = Maze_config(args.model, args.maze, args.model_dir)
     config.update_goal()
 
     # 处理危险点的策略
@@ -41,7 +42,7 @@ def main():
     if args.visual:
         args.explore = False
 
-    epsilon = 1.0   # Q-Learning 和 Sarsa 算法整除了10
+    epsilon = args.epsilon   # Q-Learning 和 Sarsa 算法整除了10
     # 探索率置为0
     if not args.explore:
         epsilon = 0
@@ -49,16 +50,16 @@ def main():
 
     # 选用的算法
     # Q-Learning
-    if args.mode == "Q-Learning":
+    if args.model == "Q-Learning":
         agent = Q_Learning(config, epsilon)
     # Sarsa
-    elif args.mode == "Sarsa":
+    elif args.model == "Sarsa":
         agent = Sarsa(config, epsilon)
     # DQN
-    elif args.mode == "DQN":
+    elif args.model == "DQN":
         agent = DQN(config, epsilon)
     # Monte-Carlo
-    elif args.mode == "MC":
+    elif args.model == "MC":
         agent = Monte_Carlo(config, epsilon)
     else:
         agent = None
