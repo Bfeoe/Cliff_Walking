@@ -4,30 +4,31 @@ from maze import Maze_config
 import os
 
 
-# Q_Learning 算法
-class Q_Learning(object):
+# Sarsa(λ) 算法
+class SarsaLambda(object):
     def __init__(self, config: Maze_config, epsilon: float = 1.0) -> None:
         # 定义超参数
-        self.alpha = 0.05       # 学习率
-        self.gamma = 0.9        # 折扣因子
-        # self.epsilon = 0.1      # 探索率
+        self.alpha = 0.05               # 学习率
+        self.gamma = 0.9                # 折扣因子
         self.epsilon = epsilon // 10    # 探索率
+        self.lambda_ = 0.9          # 资格迹折扣因子
 
-        self.model_path = config.save_dir + "q_learning_table.csv"
+        self.model_path = config.save_dir + "sarsa_lambda_table.csv"
 
         # 如果没有初始化的 Q 表则生成个空表
         if not os.path.exists(self.model_path):
             self.Q = np.zeros([config.NUM_STATES, config.NUM_ACTIONS])
-        # 将 DataFrame 转换为 NumPy 数组
         else:
-            df = pd.read_csv(self.model_path, encoding="utf-8")
+            df = pd.read_csv(self.model_path)
             self.Q = df.values
             print(f"加载了训练好的模型")
+
+        # 初始化资格迹表
+        self.E = np.zeros_like(self.Q)
 
 
     # 选择下一个行动
     def choose_action(self, config: Maze_config, iteration: int) -> int:
-        # 使用 epsilon 贪心策略选择动作，其中探索率随迭代次数递减
         exploration_rate = self.epsilon / (iteration + 1)
         if np.random.rand() < exploration_rate:
             action = np.random.randint(config.NUM_ACTIONS)
@@ -36,22 +37,30 @@ class Q_Learning(object):
         return action
 
 
-    # 更新 Q 表
-    def update(self, config: Maze_config, action: int, reward: float) -> None:
+    # 更新 Q 表和资格迹表
+    def update(self, config: Maze_config, action: int, reward: float, next_action: int) -> None:
         next_state = config.next_state
         current_state = config.current_state
-        # 更新 Q 表
-        self.Q[current_state, action] += (self.alpha * (reward + self.gamma * np.max(self.Q[next_state, :]) - self.Q[current_state, action]))
+
+        # 计算TD误差
+        td_error = reward + self.gamma * self.Q[next_state, next_action] - self.Q[current_state, action]
+
+        # 更新资格迹表
+        self.E[current_state, action] += 1
+
+        # 更新 Q 表和资格迹表
+        self.Q += self.alpha * td_error * self.E
+        self.E *= self.gamma * self.lambda_
 
 
-    # 训练
+    # 训练模型
     def train_model(self, config: Maze_config, iteration: int) -> float and bool:
-        # 选则下一步的行动,并更新模型
         action = self.choose_action(config, iteration)
         config.get_next_state(action)
         reward = config.get_reward()
+        next_action = self.choose_action(config, iteration + 1)
 
-        self.update(config, action, reward)
+        self.update(config, action, reward, next_action)
 
         judge_position = config.get_judgement()
 
@@ -61,4 +70,9 @@ class Q_Learning(object):
     # 保存 Q 表
     def save_model(self) -> None:
         df = pd.DataFrame(self.Q)
-        df.to_csv(self.model_path, index=False, encoding="utf-8")
+        df.to_csv(self.model_path, index=False)
+
+
+    # 重置资格迹表
+    def reset_eligibility(self) -> None:
+        self.E = np.zeros_like(self.Q)

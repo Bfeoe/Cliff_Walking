@@ -4,12 +4,12 @@ import numpy as np
 
 
 # 鼓励在终点的区域之内探索
-random_reward = np.random.uniform(0, 4)
+random_reward = np.random.uniform(0, 2)
 
 # reward 索引表
 reward_dir = {
     0: -1,              # 空地
-    1: -1000,            # 墙壁时
+    1: -1000,           # 墙壁时
     2: 15,              # 终点位置
     3: random_reward,   # 终点可能存在的区域
     4: -4,              # 危险区域(贴近墙壁或悬崖的位置)
@@ -112,7 +112,7 @@ class Maze_config(object):
         if (x, y) in self.visited_positions:
             repeat_penalty = -5
         else:
-            repeat_penalty = 0.1
+            repeat_penalty = 0.3
             self.visited_positions.add((x, y))
 
         total_reward = base_reward + proximity_reward + repeat_penalty

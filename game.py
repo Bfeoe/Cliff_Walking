@@ -8,6 +8,7 @@ color_dir = {
     1: (0, 0, 0),           # black
     2: (255, 215, 0),       # golden
     3: (0,0,255),           # blue
+    # 4: (255, 255, 255),     # white
     4: (192,192,192),       # grey
     5: (255, 0, 0),         # red
     6: (0,0,255),           # blue
@@ -54,6 +55,7 @@ class Game_Visual(object):
         # 当前坐标
         current_position = config.turn_to_position(config.current_state)
         self.draw_block((0, 255, 0), current_position)    # green
+        # self.draw_block((255, 255, 255), current_position)
 
         # 显示步数
         text_steps = self.font.render(f"Step: {steps}", True, (0, 0, 0))

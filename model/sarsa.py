@@ -10,7 +10,7 @@ import os
 class Sarsa(object):
     def __init__(self, config: Maze_config, epsilon: float = 1.0) -> None:
         # 定义超参数
-        self.alpha = 0.1                # 学习率
+        self.alpha = 0.05               # 学习率
         self.gamma = 0.9                # 折扣因子
         self.epsilon = epsilon // 10    # 探索率
 

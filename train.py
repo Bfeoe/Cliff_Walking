@@ -60,6 +60,9 @@ class Model_Interface(object):
             # Monte_Carlo 方法是训练完一条完整路径后一并更新
             if config.model == "MC":
                 agent.update()
+            # Sarsa_Lambda 更新资格迹表
+            elif config.model == "L":
+                agent.reset_eligibility()
 
             print(f'本轮总步数为: {i+1}\t本轮总奖励为: {rewards}\n')
             total_rewards.append(rewards)

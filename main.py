@@ -9,13 +9,14 @@ from model.q_learning import Q_Learning
 from model.dqn import DQN
 from model.sarsa import Sarsa
 from model.monte_carlo import Monte_Carlo
+from model.sarsa_lambda import SarsaLambda
 
 
 # 主函数呦
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model", choices=["Q-Learning", "Sarsa", "DQN", "MC"], default='Q-Learning', nargs='?',
+    parser.add_argument("--model", choices=["Q-Learning", "Sarsa", "DQN", "MC", "L"], default='Q-Learning', nargs='?',
                         required=False, help="模型的选择")
     parser.add_argument("--epoch", type=int, default=1000, nargs='?', required=False, help="训练的轮次")
 
@@ -61,9 +62,11 @@ def main():
     # Monte-Carlo
     elif args.model == "MC":
         agent = Monte_Carlo(config, epsilon)
+    # Sarsa_lambda
+    elif args.model == "L":
+        agent = SarsaLambda(config, epsilon)
     else:
         agent = None
-
 
     # 是否启用可视化界面
     game_config = None
